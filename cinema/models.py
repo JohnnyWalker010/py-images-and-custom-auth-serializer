@@ -39,12 +39,12 @@ class Actor(models.Model):
         return f"{self.first_name} {self.last_name}"
 
 
-def movie_image_path(instance, filename):
+def movie_image_path(instance: "Movie", filename: str):
     filename = (
-        f"{slugify(instance.title)}-{uuid.uuid4()}"
-        f"{pathlib.Path(filename).suffix}"
+            f"{slugify(instance.title)}-{uuid.uuid4()}"
+            + pathlib.Path(filename).suffix
     )
-    return pathlib.Path("/upload-image/") / pathlib.Path(filename)
+    return pathlib.Path("upload/movies/") / pathlib.Path(filename)
 
 
 class Movie(models.Model):
@@ -53,7 +53,7 @@ class Movie(models.Model):
     duration = models.IntegerField()
     genres = models.ManyToManyField(Genre)
     actors = models.ManyToManyField(Actor)
-    image = models.ImageField(upload_to="movie_image_path", null=True)
+    image = models.ImageField(upload_to=movie_image_path, null=True)
 
     class Meta:
         ordering = ["title"]
@@ -126,11 +126,11 @@ class Ticket(models.Model):
         )
 
     def save(
-        self,
-        force_insert=False,
-        force_update=False,
-        using=None,
-        update_fields=None,
+            self,
+            force_insert=False,
+            force_update=False,
+            using=None,
+            update_fields=None,
     ):
         self.full_clean()
         return super(Ticket, self).save(
@@ -138,9 +138,10 @@ class Ticket(models.Model):
         )
 
     def __str__(self):
-        return (f"{str(self.movie_session)} "
-                f"(row: {self.row}, seat: {self.seat})"
-                )
+        return (
+            f"{str(self.movie_session)} "
+            f"(row: {self.row}, seat: {self.seat})"
+        )
 
     class Meta:
         unique_together = ("movie_session", "row", "seat")
